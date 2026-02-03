@@ -15,12 +15,12 @@ more lists of objects and send notifications based on the provided criteria.
 Example configuration (json):
 ```json
 [{
-  'objectType': '<someuuid>',
-  'filters': [
+  "objectType": "<someuuid>",
+  "filters": [
     {
-      'path': 'some.object.path',
-      'operator': 'lte',
-      'value': 'somevalue'
+      "path": "some.object.path",
+      "operator": "lte",
+      "value": "somevalue"
     }
   ]
 }]

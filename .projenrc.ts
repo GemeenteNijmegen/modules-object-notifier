@@ -8,6 +8,7 @@ const project = new GemeenteNijmegenTsPackage({
   tsconfig: {
     compilerOptions: {
       isolatedModules: true,
+      lib: ['es2021'],
     },
   },
 

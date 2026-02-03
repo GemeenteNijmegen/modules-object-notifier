@@ -31,7 +31,7 @@ For the value key, you can use {{today}} as a value to use today's date.
 
 Example usage:
 
-```
+```ts
 import { Notifier } from '@gemeentenijmegen/object-notifier';
 
 const result = await Notifier.notify(config, dryrun: boolean);

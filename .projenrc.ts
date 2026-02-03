@@ -5,6 +5,11 @@ const project = new GemeenteNijmegenTsPackage({
   name: 'object-notifier',
   projenrcTs: true,
   repository: 'gemeentenijmegen/object-notifier',
+  tsconfig: {
+    compilerOptions: {
+      isolatedModules: true,
+    },
+  },
 
   // deps: [],                /* Runtime dependencies of this module. */
   // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */

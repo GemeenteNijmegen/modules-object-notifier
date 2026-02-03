@@ -1,8 +1,8 @@
 {
-  "name": "zgw-notifier",
+  "name": "object-notifier",
   "repository": {
     "type": "git",
-    "url": "gemeentenijmegen/zgw-notifier"
+    "url": "gemeentenijmegen/object-notifier"
   },
   "scripts": {
     "build": "npx projen build",

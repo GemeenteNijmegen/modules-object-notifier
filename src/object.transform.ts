@@ -1,15 +1,28 @@
 interface configuration {
   email_address: string;
   personalisation:{
-    // [key: string]: string;
+    [key: string]: string;
     // 'klant.voornaam': string;
     // "klant.voorvoegselAchternaam": string,
     // "klant.achternaam": string,
     // "taak.heeft_verloopdatum": string,
-    'taak.verloopdatum': string;
-    'taak.periode': string;
+    // 'taak.verloopdatum': string;
+    // 'taak.periode': string;
   };
 }
+
+// Idee voor nieuwe configuration interface
+// interface configuration {
+//   email_address: string;
+//   personalisation:{
+//     [key: string]: string | {
+//       path: string,
+//       type?: 'date',
+//       inputFormat: 'yyyy-mm-dd hh:mm:ss' | 'YYYYMM',
+//       outputFormat: Intl.DateTimeFormatOptions
+//     };
+//   };
+// }
 
 export function objectTransform(configuration: configuration, object: any): configuration {
   console.log(configuration);

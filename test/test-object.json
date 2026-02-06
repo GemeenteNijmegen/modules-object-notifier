@@ -7,16 +7,16 @@
     "typeVersion": 7,
     "data": {
       "soort": "formtaak",
-      "titel": "test teppei 9",
+      "titel": "test object",
       "status": "open",
       "eigenaar": "nijmegen",
       "formtaak": {
         "data": {
-          "email": "w.kremer@nijmegen.nl",
+          "email": "test.test@nijmegen.nl",
           "inkhef": "NEE",
           "telefoon": "",
-          "clientnummer": "39761",
-          "dossiernummer": "90196930",
+          "clientnummer": "12345",
+          "dossiernummer": "1234567",
           "periodenummer": "202601",
           "regelingnummer": "0",
           "reminder_verzonden": "nee",
@@ -30,7 +30,7 @@
       "verloopdatum": "2025-11-01 00:00:00",
       "identificatie": {
         "type": "bsn",
-        "value": "999971805"
+        "value": "123456789"
       },
       "verwerker_taak_id": "client_task"
     },

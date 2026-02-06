@@ -1,13 +1,12 @@
 interface configuration {
   email_address: string;
   personalisation:{
-    [key: string]: string;
-    // 'klant.voornaam': string;
-    // "klant.voorvoegselAchternaam": string,
-    // "klant.achternaam": string,
-    // "taak.heeft_verloopdatum": string,
-    // 'taak.verloopdatum': string;
-    // 'taak.periode': string;
+    [key: string]: string | {
+      path: string;
+      type: 'date';
+      inputFormat: 'yyyy-mm-dd hh:mm:ss' | 'YYYYMM';
+      outputFormat: Intl.DateTimeFormatOptions;
+    };
   };
 }
 
@@ -19,30 +18,37 @@ interface configuration {
 //       path: string,
 //       type?: 'date',
 //       inputFormat: 'yyyy-mm-dd hh:mm:ss' | 'YYYYMM',
-//       outputFormat: Intl.DateTimeFormatOptions
+//       outputFormat: Intl.DateTimeFormatOptions`
 //     };
 //   };
 // }
 
 export function objectTransform(configuration: configuration, object: any): configuration {
-  console.log(configuration);
-  const date = stringToDate(getByPath(object, configuration.personalisation['taak.verloopdatum']));
-  const periode = periodeToDate(getByPath(object, configuration.personalisation['taak.periode']));
+  let personalisation: { [key: string]: string } = {};
+  for (let key in configuration.personalisation) {
+    let objectValue;
+    console.log(configuration.personalisation[key]);
+    if (typeof configuration.personalisation[key] === 'string') {
+      objectValue = getByPath(object, configuration.personalisation[key]);
+    } else {
+      if (configuration.personalisation[key].type === 'date') {
+        let objectDate: Date;
+        if (configuration.personalisation[key].inputFormat === 'yyyy-mm-dd hh:mm:ss') {
+          objectDate = stringToDate(getByPath(object, configuration.personalisation[key].path));
+        } else if (configuration.personalisation[key].inputFormat === 'YYYYMM') {
+          objectDate = periodeToDate(getByPath(object, configuration.personalisation[key].path));
+        } else {
+          throw new Error('Invalid input format');
+        }
+        objectValue = formatDatetime(objectDate, configuration.personalisation[key].outputFormat);
+
+      }
+    }
+    personalisation[key] = objectValue;
+  }
   return {
     email_address: getByPath(object, configuration.email_address),
-    personalisation: {
-    //   'klant.voornaam': getByPath(object, configuration.personalisation['klant.voornaam']),
-      // "klant.voorvoegselAchternaam": "van de",
-      // "klant.achternaam": "Kamp",
-    //   "taak.heeft_verloopdatum": getByPath(object, configuration.personalisation["taak.heeft_verloopdatum"]),
-      'taak.verloopdatum': formatDatetime(date, {
-        dateStyle: 'long',
-      }),
-      'taak.periode': formatDatetime(periode, {
-        month: 'long',
-        year: 'numeric',
-      }),
-    },
+    personalisation: personalisation,
   };
 }
 

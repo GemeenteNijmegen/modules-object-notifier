@@ -1,0 +1,44 @@
+{
+  "url": "https://mijn-services.accp.nijmegen.nl/objects/api/v2/objects/24e307f1-d69a-45b6-8616-30ded66bf754",
+  "uuid": "24e307f1-d69a-45b6-8616-30ded66bf754",
+  "type": "https://mijn-services.accp.nijmegen.nl/objecttypes/api/v2/objecttypes/6df21057-e07c-4909-8933-d70b79cfd15e",
+  "record": {
+    "index": 1,
+    "typeVersion": 7,
+    "data": {
+      "soort": "formtaak",
+      "titel": "test object",
+      "status": "open",
+      "eigenaar": "nijmegen",
+      "formtaak": {
+        "data": {
+          "email": "test.test@nijmegen.nl",
+          "inkhef": "NEE",
+          "telefoon": "",
+          "clientnummer": "12345",
+          "dossiernummer": "1234567",
+          "periodenummer": "202601",
+          "regelingnummer": "0",
+          "reminder_verzonden": "nee",
+          "termijnvanordedatum": "2025-08-04 00:00:00"
+        },
+        "formulier": {
+          "soort": "url",
+          "value": "https://formulier.accp.nijmegen.nl/statusformulier?initial_data_reference=23afc432-6d7e-4af4-9a1e-0447285e0384"
+        }
+      },
+      "verloopdatum": "2025-11-01 00:00:00",
+      "identificatie": {
+        "type": "bsn",
+        "value": "123456789"
+      },
+      "verwerker_taak_id": "client_task"
+    },
+    "geometry": null,
+    "startAt": "2026-01-15",
+    "endAt": null,
+    "registrationAt": "2026-01-23",
+    "correctionFor": null,
+    "correctedBy": null
+  }
+}

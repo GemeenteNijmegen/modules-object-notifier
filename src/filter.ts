@@ -11,8 +11,8 @@ interface configuration {
  * Filter takes a configuration object and returns
  * a querystring for the objects API. The returned
  * querystring always contains at least the ? (opening)
- * 
- * @returns string urlquery 
+ *
+ * @returns string urlquery
  */
 export function filter(configuration: configuration) {
   const params = new URLSearchParams();

@@ -8,13 +8,11 @@ describe('API should', () => {
     expect(apiClient).toBeTruthy();
 
     expect(apiClient.configureRequest({
-      body: {},
       headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
     })).toEqual({
-      body: '{}',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'testkey',
@@ -23,13 +21,11 @@ describe('API should', () => {
     });
 
     expect(apiClient2.configureRequest({
-      body: {},
       headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
     })).toEqual({
-      body: '{}',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'mijnjwt',

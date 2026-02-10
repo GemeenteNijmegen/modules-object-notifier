@@ -11,7 +11,6 @@ export class ApiClient {
   private authHeader: string;
   constructor(authHeader: string) {
     this.authHeader = authHeader;
-    console.log(this.authHeader);
   }
 
   async apiConnect(app: App, url: string): Promise<any> {

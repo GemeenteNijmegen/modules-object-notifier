@@ -1,4 +1,4 @@
-import { ApiClient, requestApi } from '../src/api';
+import { ApiClient } from '../src/api';
 
 describe('API should', () => {
 
@@ -7,7 +7,7 @@ describe('API should', () => {
     const apiClient2 = new ApiClient('mijnjwt');
     expect(apiClient).toBeTruthy();
 
-    expect(apiClient.requestApi({
+    expect(apiClient.configureRequest({
       body: {},
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ describe('API should', () => {
       method: 'POST',
     });
 
-    expect(apiClient2.requestApi({
+    expect(apiClient2.configureRequest({
       body: {},
       headers: {
         'Content-Type': 'application/json',

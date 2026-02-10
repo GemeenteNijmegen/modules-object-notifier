@@ -45,7 +45,6 @@ describeIntegration('API integration test', () => {
 
     const result = await apiClient.request(request, `https://mijn-services.accp.nijmegen.nl/objects/api/v2/objects${objectFilter}`);
     expect(result).toHaveProperty('count');
-    console.debug(result);
   });
 
 });

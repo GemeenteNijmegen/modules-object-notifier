@@ -1,5 +1,4 @@
 interface App {
-  url: string;
   method: 'GET' | 'POST';
   headers: {
     'Content-Type': string;
@@ -15,8 +14,8 @@ export class ApiClient {
     console.log(this.authHeader);
   }
 
-  async apiConnect(app: App): Promise<any> {
-    const response = await fetch(this.requestApi(app));
+  async apiConnect(app: App, url: string): Promise<any> {
+    const response = await fetch(url, this.requestApi(app));
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -25,7 +24,6 @@ export class ApiClient {
 
   public requestApi(app: App) {
     return {
-      url: app.url,
       method: app.method,
       headers: {
         Authorization: this.authHeader,

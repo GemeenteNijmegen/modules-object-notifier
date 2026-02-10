@@ -3,7 +3,7 @@ interface App {
   headers: {
     'Content-Type': string;
   };
-  body: object;
+  body?: string;
 }
 
 
@@ -13,24 +13,25 @@ export class ApiClient {
     this.authHeader = authHeader;
   }
 
-  async apiConnect(app: App, url: string): Promise<any> {
-    const response = await fetch(url, this.requestApi(app));
+  async request(app: App, url: string): Promise<any> {
+    const response = await fetch(url, this.configureRequest(app));
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return response.json();
   }
 
-  public requestApi(app: App) {
-    return {
+  public configureRequest(app: App): App {
+    const request = {
       method: app.method,
       headers: {
         Authorization: this.authHeader,
         ...app.headers,
       },
-      body: JSON.stringify({
-        // Your request body here
-      }),
-    };
+    } as App;
+    if (app.body) {
+      request.body = JSON.stringify(app.body);
+    }
+    return request;
   }
 }

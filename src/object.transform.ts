@@ -66,9 +66,32 @@ function getByPath(obj: any, path: string): any {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 }
 
-function stringToDate(dateString:string) {
+/**
+ * Convert a datetime string to
+ * @param dateString string in the format 'YYYY-MM-DD HH:MM:SS'
+ * @returns {Date}
+ */
+function stringToDate(dateString: string) {
+  if (isNaN(Date.parse(dateString))) {
+    throw Error('Value is not a date-like string');
+  }
   const normalizedDate = dateString.split(' ').join('T')+ 'Z';
   return new Date(normalizedDate);
+}
+
+/**
+ * Convert a periodenummer to date
+ * @param periodeString string in the format 'YYYYMM'
+ * @returns {Date}
+ */
+function periodeToDate(periodeString: string) {
+  if (isNaN(Date.parse(periodeString))) {
+    throw Error('Value is not a date-like string');
+  }
+  const year = Number(periodeString.slice(0, 'YYYY'.length));
+  const month = Number(periodeString.slice(4, 'YYYYMM'.length))-1; // Months are zero-indexed
+  const date = new Date (year, month, 1);
+  return date;
 }
 
 function formatDatetime(date: Date, dateTimeFormat: Intl.DateTimeFormatOptions) {
@@ -76,9 +99,3 @@ function formatDatetime(date: Date, dateTimeFormat: Intl.DateTimeFormatOptions) 
   return dateTime;
 }
 
-function periodeToDate(periodeString:string) {
-  const year = Number(periodeString.slice(0, 4));
-  const month = Number(periodeString.slice(4, 6))-1;
-  const date = new Date (year, month, 1);
-  return date;
-}

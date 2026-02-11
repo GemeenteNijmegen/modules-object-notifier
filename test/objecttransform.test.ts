@@ -37,4 +37,58 @@ describe('object should', () => {
     },
     );
   });
+  test('throw when provided invalid configuration', async() => {
+    const invalidConfig = {
+      email_address: 'record.data.formtaak.data.email',
+      personalisation: {
+        'formulier': 'record.data.formtaak.formulier.value',
+        'taak.verloopdatum': {
+          path: 'record.data.verloopdatum',
+          type: 'date',
+          inputFormat: 'invalid',
+          outputFormat: {
+            dateStyle: 'long',
+          },
+        },
+        'taak.periode': {
+          path: 'record.data.formtaak.data.periodenummer',
+          type: 'date',
+          inputFormat: 'YYYYMM',
+          outputFormat: {
+            month: 'long',
+            year: 'numeric',
+          },
+        },
+      },
+    };
+    expect(() => { objectTransform(invalidConfig as any, testObject); }).toThrow();
+  });
+  test('throw when provided invalid input', async() => {
+    const invalidConfig = {
+      email_address: 'record.data.formtaak.data.email',
+      personalisation: {
+        'formulier': 'record.data.formtaak.formulier.value',
+        'taak.verloopdatum': {
+          path: 'record.data.verloopdatum',
+          type: 'date',
+          inputFormat: 'YYYYMM',
+          outputFormat: {
+            dateStyle: 'long',
+          },
+        },
+        'taak.periode': {
+          path: 'record.data.formtaak.data.periodenummer',
+          type: 'date',
+          inputFormat: 'YYYYMM',
+          outputFormat: {
+            month: 'long',
+            year: 'numeric',
+          },
+        },
+      },
+    };
+    const invalidObject = structuredClone(testObject);
+    invalidObject.record.data.verloopdatum = 'geendatum';
+    expect(() => { objectTransform(invalidConfig as any, invalidObject); }).toThrow();
+  });
 });

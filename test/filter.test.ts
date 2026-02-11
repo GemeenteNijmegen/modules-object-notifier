@@ -50,3 +50,18 @@ describe('filters should', () => {
     })).toBe('?type=6df21057-e07c-4909-8933-d70b79cfd15e');
   });
 });
+
+describe('passing special values', () => {
+  test('{{today}} transforms to todays date in YYYY-MM-DD format', async() => {
+    const today = new Date().toISOString().split('T')[0];
+    expect(filter({
+      filters: [
+        {
+          path: 'date',
+          operator: 'exact',
+          value: '{{today}}',
+        },
+      ],
+    })).toBe(`?data_attr=date__exact__${today}`);
+  });
+});

@@ -91,4 +91,23 @@ describe('object should', () => {
     invalidObject.record.data.verloopdatum = 'geendatum';
     expect(() => { objectTransform(invalidConfig as any, invalidObject); }).toThrow();
   });
+  test('throw when provided invalid input type', async() => {
+    const invalidConfig = {
+      email_address: 'record.data.formtaak.data.email',
+      personalisation: {
+        'formulier': 'record.data.formtaak.formulier.value',
+        'taak.verloopdatum': {
+          path: 'record.data.verloopdatum',
+          type: 'nonexistent',
+          inputFormat: 'YYYYMM',
+          outputFormat: {
+            dateStyle: 'long',
+          },
+        },
+      },
+    };
+    const invalidObject = structuredClone(testObject);
+    invalidObject.record.data.verloopdatum = 'geendatum';
+    expect(() => { objectTransform(invalidConfig as any, invalidObject); }).toThrow();
+  });
 });

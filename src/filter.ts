@@ -38,5 +38,6 @@ function transformSpecialValue(value: string) {
     if (transformedValue == 'today') {
       return new Date().toISOString().split('T')[0];
     }
-  } else {return value;}
+  }
+  return value;
 }

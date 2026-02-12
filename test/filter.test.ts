@@ -2,7 +2,10 @@ import { filter } from '../src/filter';
 
 describe('filters should', () => {
 
-  test('return empty string with empty config', async() => {
+  test('return empty querystring with empty config', async () => {
+    expect(filter({})).toBe('?');
+  });
+  test('Return correct value with a single filter', async () => {
     expect(filter({
       objectType: '7D365829-D0A2-4541-9621-228125BDAF6C',
       filters: [
@@ -13,7 +16,8 @@ describe('filters should', () => {
         },
       ],
     })).toBe('?type=7D365829-D0A2-4541-9621-228125BDAF6C&data_attr=some__object__path__lte__somevalue');
-
+  });
+  test('return correct value with multiple filters', async () => {
     expect(filter({
       objectType: 'https://mijn-services.accp.nijmegen.nl/objecttypes/api/v2/objecttypes/6df21057-e07c-4909-8933-d70b79cfd15e',
       filters: [

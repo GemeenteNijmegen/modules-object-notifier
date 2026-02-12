@@ -22,7 +22,7 @@ export function filter(configuration: configuration) {
 
   const filters = configuration.filters?.map(aFilter => {
     const path = aFilter.path.replaceAll('.', '__');
-    return `${path}__${aFilter.operator}__${aFilter.value}`;
+    return `${path}__${aFilter.operator}__${transformSpecialValue(aFilter.value)}`;
   });
   if (filters) {
     for (const aFilter of filters) {
@@ -30,4 +30,14 @@ export function filter(configuration: configuration) {
     }
   }
   return '?' + params.toString();
+}
+
+function transformSpecialValue(value: string) {
+  const transformedValue = value.match(/\{\{([^}]+)\}\}/)?.[1]?.trim();
+  if (transformedValue) {
+    if (transformedValue == 'today') {
+      return new Date().toISOString().split('T')[0];
+    }
+  }
+  return value;
 }

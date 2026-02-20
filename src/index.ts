@@ -1,5 +1,2 @@
-export class Hello {
-  public sayHello() {
-    return 'hello, world!';
-  }
-}
+import { Notifier } from './Notifier';
+export default Notifier;

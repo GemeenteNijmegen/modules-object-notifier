@@ -1,4 +1,4 @@
-interface configuration {
+export interface filterConfiguration {
   objectType?: string;
   filters?: {
     path: string;
@@ -14,7 +14,7 @@ interface configuration {
  *
  * @returns string urlquery
  */
-export function filter(configuration: configuration) {
+export function filter(configuration: filterConfiguration) {
   const params = new URLSearchParams();
   if (configuration.objectType != undefined) {
     params.append('type', configuration.objectType);

@@ -67,7 +67,6 @@ export class ApiClient {
     const response = await fetchFn(url, config);
 
     if (!response.ok) {
-      console.error('error getting', url, config, JSON.stringify(response.body));
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 

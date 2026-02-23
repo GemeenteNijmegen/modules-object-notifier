@@ -5,7 +5,7 @@ import { filter } from '../src/filter';
 describeIntegration('API integration test', () => {
 
   test('Connection to Objects API succeeds', async () => {
-    const apiClient = new ApiClient(process.env.OBJECT_TOKEN!);
+    const apiClient = new ApiClient({ authHeader: process.env.OBJECT_TOKEN! });
     const request = apiClient.configureRequest({
       method: 'GET',
       headers: {
@@ -35,7 +35,7 @@ describeIntegration('API integration test', () => {
     });
     expect (`https://mijn-services.accp.nijmegen.nl/objects/api/v2/objects${objectFilter}`).toBe('https://mijn-services.accp.nijmegen.nl/objects/api/v2/objects?type=https%3A%2F%2Fmijn-services.accp.nijmegen.nl%2Fobjecttypes%2Fapi%2Fv2%2Fobjecttypes%2F6df21057-e07c-4909-8933-d70b79cfd15e&data_attr=formtaak__data__reminder_verzonden__exact__nee&data_attr=status__exact__open');
 
-    const apiClient = new ApiClient(process.env.OBJECT_TOKEN!);
+    const apiClient = new ApiClient({ authHeader: process.env.OBJECT_TOKEN! });
     const request = apiClient.configureRequest({
       method: 'GET',
       headers: {

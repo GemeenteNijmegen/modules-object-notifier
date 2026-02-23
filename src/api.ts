@@ -1,37 +1,88 @@
-interface App {
+interface requestConfiguration {
   method: 'GET' | 'POST';
-  headers: {
-    'Content-Type': string;
+  headers?: {
+    [key: string]: string;
   };
   body?: string;
 }
 
+interface PaginatedResponse<T = any> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 export class ApiClient {
-  private authHeader: string;
-  constructor(authHeader: string) {
-    this.authHeader = authHeader;
+  constructor(private config: {
+    authHeader: string;
+    fetchFn?: any;
+  }) {
   }
 
-  async request(app: App, url: string): Promise<any> {
-    const response = await fetch(url, this.configureRequest(app));
+  async request(config: requestConfiguration, url: string): Promise<any> {
+    const firstResponse = await this.makeRequest(config, url);
+
+    const isPaginated = this.isPaginatedResponse(firstResponse);
+    const shouldFetchAll = isPaginated && config.method === 'GET';
+
+    if (!shouldFetchAll) {
+      return firstResponse;
+    }
+
+    // Collect all results
+    let allResults = [...firstResponse.results];
+    let nextUrl = firstResponse.next;
+
+    while (nextUrl) {
+      const response: PaginatedResponse = await this.makeRequest(config, nextUrl);
+      allResults = allResults.concat(response.results);
+      nextUrl = response.next;
+    }
+
+    // Return combined response with all results
+    return allResults;
+  }
+
+  public configureRequest(config: requestConfiguration): requestConfiguration {
+    const request = {
+      method: config.method,
+      headers: {
+        'Authorization': this.config.authHeader,
+        'Content-Type': 'application/json',
+        ...config?.headers,
+      },
+    } as requestConfiguration;
+    if (config.body) {
+      request.body = JSON.stringify(config.body);
+    }
+    return request;
+  }
+
+  /**
+   * Makes a single request to the API
+   */
+  private async makeRequest(config: requestConfiguration, url: string): Promise<any> {
+    const fetchFn = this.config.fetchFn ?? fetch;
+    const response = await fetchFn(url, config);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
     return response.json();
   }
 
-  public configureRequest(app: App): App {
-    const request = {
-      method: app.method,
-      headers: {
-        Authorization: this.authHeader,
-        ...app.headers,
-      },
-    } as App;
-    if (app.body) {
-      request.body = JSON.stringify(app.body);
-    }
-    return request;
+  /**
+   * Type guard to check if response is paginated
+   */
+  private isPaginatedResponse(response: any): response is PaginatedResponse {
+    return (
+      response &&
+      typeof response === 'object' &&
+      'results' in response &&
+      Array.isArray(response.results) &&
+      ('next' in response || 'previous' in response)
+    );
   }
 }

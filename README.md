@@ -36,8 +36,12 @@ import { Notifier } from '@gemeentenijmegen/object-notifier';
 
 const result = await Notifier.notify(config, dryrun: boolean);
 // result = { succesful: 10, failed: 2 }
-
 ```
+
+### Example
+To run the example:
+- Set .env (copy .env.example and add values)
+- run example `npx ts-node example.ts`
 
 ### Sequence flow
 This flow describes the happy path. Especially in the two external connections, error handling needs to be added. Most naïvely, this is called regularly (daily) so

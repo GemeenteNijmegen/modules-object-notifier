@@ -1,4 +1,4 @@
-interface requestConfiguration {
+interface RequestConfiguration {
   method: 'GET' | 'POST';
   headers?: {
     [key: string]: string;
@@ -20,7 +20,7 @@ export class ApiClient {
   }) {
   }
 
-  async request(config: requestConfiguration, url: string): Promise<any> {
+  async request(config: RequestConfiguration, url: string): Promise<any> {
     const firstResponse = await this.makeRequest(config, url);
 
     const isPaginated = this.isPaginatedResponse(firstResponse);
@@ -44,7 +44,7 @@ export class ApiClient {
     return allResults;
   }
 
-  public configureRequest(config: requestConfiguration): requestConfiguration {
+  public configureRequest(config: RequestConfiguration): RequestConfiguration {
     const request = {
       method: config.method,
       headers: {
@@ -52,7 +52,7 @@ export class ApiClient {
         'Content-Type': 'application/json',
         ...config?.headers,
       },
-    } as requestConfiguration;
+    } as RequestConfiguration;
     if (config.body) {
       request.body = JSON.stringify(config.body);
     }
@@ -62,7 +62,7 @@ export class ApiClient {
   /**
    * Makes a single request to the API
    */
-  private async makeRequest(config: requestConfiguration, url: string): Promise<any> {
+  private async makeRequest(config: RequestConfiguration, url: string): Promise<any> {
     const fetchFn = this.config.fetchFn ?? fetch;
     const response = await fetchFn(url, config);
 

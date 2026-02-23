@@ -12,7 +12,12 @@ interface configuration {
 }
 
 export class Notifier {
-  constructor(private config: configuration) { }
+  private notifyApiClient: ApiClient;
+  private objectsApiClient: ApiClient;
+  constructor(private config: configuration) { 
+    this.objectsApiClient = new ApiClient({ authHeader: `Token ${config.objectsToken}` });
+    this.notifyApiClient = new ApiClient({ authHeader: `Token ${config.notifyToken}` });
+  }
 
   async notify() {
     // Get filter from filter
@@ -21,28 +26,41 @@ export class Notifier {
     const objectResults = await this.getObjects({
       filter: objectsFilter,
       baseUrl: this.config.objectsBaseUrl,
-      token: this.config.objectsToken,
     });
 
-    for (let result of objectResults) {
+    for (let objectResult of objectResults) {
       // map object to notify input
-      const mapping = objectTransform(this.config.objectMapping, result);
+      const fullMapping = objectTransform(this.config.objectMapping, objectResult);
+      let { phone_number, ...emailMapping } = fullMapping;
+      let { email_address, ...phoneMapping } = fullMapping;
+      console.log(objectResult.uuid, phoneMapping, emailMapping);
       // TODO: Call notify
-      console.log(mapping);
+      const requestConfigMail = this.objectsApiClient.configureRequest({
+        method: 'POST',
+        body: JSON.stringify(emailMapping),
+      });
+      const requestConfigPhone = this.objectsApiClient.configureRequest({
+        method: 'POST',
+        body: JSON.stringify(phoneMapping),
+      });
+      const result = await Promise.all([
+        this.notifyApiClient.request(requestConfigMail, `${this.config.notifyBaseUrl}email`),
+        this.notifyApiClient.request(requestConfigPhone, `${this.config.notifyBaseUrl}sms`)
+      ]);
+      console.log(result);
+      
       // TODO: Update object
     }
   }
 
   private async getObjects(config: {
     filter: string;
-    token: string;
     baseUrl: string;
   }) {
-    const objectsApi = new ApiClient({ authHeader: `Token ${config.token}` });
-    const requestConfig = objectsApi.configureRequest({
+    const requestConfig = this.objectsApiClient.configureRequest({
       method: 'GET',
     });
-    const objectResults = await objectsApi.request(requestConfig, `${config.baseUrl}${config.filter}`);
+    const objectResults = await this.objectsApiClient.request(requestConfig, `${config.baseUrl}${config.filter}`);
     return objectResults;
   }
 }

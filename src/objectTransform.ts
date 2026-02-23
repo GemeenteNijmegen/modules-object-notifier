@@ -1,4 +1,4 @@
-interface personalisationMapping {
+interface PersonalisationMapping {
   /**
    * The path (dot-separated, e.g. `path.to.my.key`) to the key to map
    */
@@ -17,7 +17,7 @@ interface personalisationMapping {
   outputFormat: Intl.DateTimeFormatOptions;
 }
 
-export interface mappingConfiguration {
+export interface MappingConfiguration {
   email_address: string;
   phone_number: string;
   personalisation: {
@@ -25,12 +25,12 @@ export interface mappingConfiguration {
      * If the value is a string, we assume there's a direct mapping of the value
      * If an object is provided,
      */
-    [key: string]: string | personalisationMapping;
+    [key: string]: string | PersonalisationMapping;
   };
 }
 
 
-export function objectTransform(configuration: mappingConfiguration, object: any): mappingConfiguration {
+export function objectTransform(configuration: MappingConfiguration, object: any): MappingConfiguration {
   let personalisation: { [key: string]: string } = {};
   for (let key in configuration.personalisation) {
     let objectValue;
@@ -48,7 +48,7 @@ export function objectTransform(configuration: mappingConfiguration, object: any
   };
 }
 
-function dateStringMappedObjectValue(configuration: personalisationMapping, object: any) {
+function dateStringMappedObjectValue(configuration: PersonalisationMapping, object: any) {
   if (configuration.type === 'date') {
     let objectDate: Date;
     if (configuration.inputFormat === 'yyyy-mm-dd hh:mm:ss') {

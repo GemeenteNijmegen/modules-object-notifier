@@ -1,18 +1,18 @@
 import { ApiClient } from './api';
-import { filter, filterConfiguration } from './filter';
-import { mappingConfiguration, objectTransform } from './object.transform';
+import { filter, FilterConfiguration } from './filter';
+import { MappingConfiguration, objectTransform } from './objectTransform';
 
-interface configuration {
+interface Configuration {
   objectsToken: string;
   notifyToken: string;
   objectsBaseUrl: string;
   notifyBaseUrl: string;
-  objectFilter: filterConfiguration;
-  objectMapping: mappingConfiguration;
+  objectFilter: FilterConfiguration;
+  objectMapping: MappingConfiguration;
 }
 
 export class Notifier {
-  constructor(private config: configuration) { }
+  constructor(private config: Configuration) { }
 
   async notify() {
     // Get filter from filter

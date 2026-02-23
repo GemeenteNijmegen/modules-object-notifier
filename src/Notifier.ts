@@ -1,20 +1,20 @@
 import { ApiClient } from './api';
-import { filter, filterConfiguration } from './filter';
-import { mappingConfiguration, objectTransform } from './object.transform';
+import { filter, FilterConfiguration } from './filter';
+import { MappingConfiguration, objectTransform } from './objectTransform';
 
-interface configuration {
+interface Configuration {
   objectsToken: string;
   notifyToken: string;
   objectsBaseUrl: string;
   notifyBaseUrl: string;
-  objectFilter: filterConfiguration;
-  objectMapping: mappingConfiguration;
+  objectFilter: FilterConfiguration;
+  objectMapping: MappingConfiguration;
 }
 
 export class Notifier {
   private notifyApiClient: ApiClient;
   private objectsApiClient: ApiClient;
-  constructor(private config: configuration) { 
+  constructor(private config: Configuration) { 
     this.objectsApiClient = new ApiClient({ authHeader: `Token ${config.objectsToken}` });
     this.notifyApiClient = new ApiClient({ authHeader: `Token ${config.notifyToken}` });
   }

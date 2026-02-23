@@ -1,5 +1,5 @@
 import testObject from './test-object.json';
-import { objectTransform } from '../src/object.transform';
+import { objectTransform } from '../src/objectTransform';
 
 describe('object should', () => {
 

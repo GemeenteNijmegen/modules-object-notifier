@@ -21,7 +21,7 @@ export class Notifier {
     const objectResults = await this.getObjects({
       filter: objectsFilter,
       baseUrl: this.config.objectsBaseUrl,
-      token: this.config.objectsToken
+      token: this.config.objectsToken,
     });
 
     for (let result of objectResults) {
@@ -34,9 +34,9 @@ export class Notifier {
   }
 
   private async getObjects(config: {
-    filter: string,
-    token: string,
-    baseUrl: string
+    filter: string;
+    token: string;
+    baseUrl: string;
   }) {
     const objectsApi = new ApiClient({ authHeader: `Token ${config.token}` });
     const requestConfig = objectsApi.configureRequest({

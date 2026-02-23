@@ -14,7 +14,7 @@
         "data": {
           "email": "test.test@nijmegen.nl",
           "inkhef": "NEE",
-          "telefoon": "",
+          "telefoon": "12345",
           "clientnummer": "12345",
           "dossiernummer": "1234567",
           "periodenummer": "202601",

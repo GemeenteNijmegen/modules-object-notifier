@@ -6,6 +6,7 @@ describe('object should', () => {
   test('transform object', async() => {
     const output = objectTransform({
       email_address: 'record.data.formtaak.data.email',
+      phone_number: 'record.data.formtaak.data.telefoon',
       personalisation: {
         'formulier': 'record.data.formtaak.formulier.value',
         'taak.verloopdatum': {
@@ -29,6 +30,7 @@ describe('object should', () => {
     }, testObject);
     expect(output).toEqual({
       email_address: 'test.test@nijmegen.nl',
+      phone_number: '12345',
       personalisation: {
         'formulier': 'https://formulier.accp.nijmegen.nl/statusformulier?initial_data_reference=23afc432-6d7e-4af4-9a1e-0447285e0384',
         'taak.verloopdatum': '1 november 2025',

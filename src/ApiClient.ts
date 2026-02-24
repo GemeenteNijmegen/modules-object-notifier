@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 interface RequestConfiguration {
-  method: 'GET' | 'POST';
+  method: 'GET' | 'POST' | 'PATCH';
   headers?: {
     [key: string]: string;
   };
@@ -45,7 +45,12 @@ export class ApiClient {
     }
 
     // Return combined response with all results
-    return allResults;
+    return {
+      count: allResults.length,
+      next: null,
+      previous: null,
+      results: allResults,
+    };
   }
 
   /**

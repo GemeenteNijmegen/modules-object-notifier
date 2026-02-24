@@ -91,7 +91,7 @@ describe('API pagination', () => {
       method: 'GET',
     });
     const result = await apiClient.request(config, 'https://example.com');
-    expect(result.length).toBe(20);
+    expect(result.results.length).toBe(20);
   });
 });
 
@@ -147,7 +147,7 @@ describe('partial URLs', () => {
         },
         method: 'GET',
       });
-      const result = await apiClient.request(config, url);
+      await apiClient.request(config, url);
       expect(fetchFn).toHaveBeenCalledWith(expected, {
         headers: {
           'Content-Type': 'application/json',

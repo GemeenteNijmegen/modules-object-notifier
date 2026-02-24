@@ -50,8 +50,7 @@ export class Notifier {
       return this.notifyApiClient.request(requestConfig, `${this.config.notifyBaseUrl}email`);
     } else if (mappedObject.phone_number) {
       return this.notifyApiClient.request(requestConfig, `${this.config.notifyBaseUrl}sms`);
-    }
-    else { throw Error('mapped object must have phone_number or email_address'); }
+    } else { throw Error('mapped object must have phone_number or email_address'); }
   }
 
   private async getObjectsWithFilter(objectFilter: FilterConfiguration) {

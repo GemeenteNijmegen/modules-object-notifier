@@ -34,8 +34,8 @@ export interface MappingConfiguration {
      */
     [key: string]: string | PersonalisationMapping;
   };
-  email_address?: string,
-  phone_number?: string,
+  email_address?: string;
+  phone_number?: string;
 }
 
 

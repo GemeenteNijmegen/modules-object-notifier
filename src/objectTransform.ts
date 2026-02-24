@@ -17,9 +17,16 @@ interface PersonalisationMapping {
   outputFormat: Intl.DateTimeFormatOptions;
 }
 
-export interface MappingConfiguration {
+export interface emailMappingConfiguration extends MappingConfiguration {
   email_address: string;
+}
+
+export interface phoneMappingConfiguration extends MappingConfiguration {
   phone_number: string;
+}
+
+export interface MappingConfiguration {
+  template_id: string;
   personalisation: {
     /**
      * If the value is a string, we assume there's a direct mapping of the value
@@ -27,6 +34,8 @@ export interface MappingConfiguration {
      */
     [key: string]: string | PersonalisationMapping;
   };
+  email_address?: string;
+  phone_number?: string;
 }
 
 
@@ -42,8 +51,9 @@ export function objectTransform(configuration: MappingConfiguration, object: any
     personalisation[key] = objectValue;
   }
   return {
-    email_address: getByPath(object, configuration.email_address),
-    phone_number: getByPath(object, configuration.phone_number),
+    template_id: configuration.template_id,
+    email_address: configuration.email_address ? getByPath(object, configuration.email_address) : undefined,
+    phone_number: configuration.phone_number ? getByPath(object, configuration.phone_number) : undefined,
     personalisation: personalisation,
   };
 }

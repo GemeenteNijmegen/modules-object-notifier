@@ -3,7 +3,7 @@ interface RequestConfiguration {
   headers?: {
     [key: string]: string;
   };
-  body?: string;
+  body?: any;
 }
 
 interface PaginatedResponse<T = any> {

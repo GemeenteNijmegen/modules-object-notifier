@@ -1,7 +1,12 @@
 import { GemeenteNijmegenTsPackage } from '@gemeentenijmegen/projen-project-type';
 const project = new GemeenteNijmegenTsPackage({
   defaultReleaseBranch: 'main',
-  devDeps: ['@gemeentenijmegen/projen-project-type', 'dotenv'],
+  devDeps: [
+    '@gemeentenijmegen/projen-project-type',
+    'dotenv',
+    '@types/jsonwebtoken',
+  ],
+  deps: ['jsonwebtoken'],
   name: 'object-notifier',
   projenrcTs: true,
   repository: 'gemeentenijmegen/object-notifier',

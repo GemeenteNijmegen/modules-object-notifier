@@ -1,3 +1,4 @@
+import * as jwt from 'jsonwebtoken';
 import { ApiClient } from './api';
 import { filter, FilterConfiguration } from './filter';
 import { MappingConfiguration, objectTransform } from './objectTransform';
@@ -5,55 +6,66 @@ import { MappingConfiguration, objectTransform } from './objectTransform';
 interface Configuration {
   objectsToken: string;
   notifyToken: string;
+  notifyIssuer: string;
   objectsBaseUrl: string;
   notifyBaseUrl: string;
   objectFilter: FilterConfiguration;
-  objectMapping: MappingConfiguration;
+  objectMappings: MappingConfiguration[];
 }
 
 export class Notifier {
   private notifyApiClient: ApiClient;
   private objectsApiClient: ApiClient;
-  constructor(private config: Configuration) { 
+  constructor(private config: Configuration) {
     this.objectsApiClient = new ApiClient({ authHeader: `Token ${config.objectsToken}` });
-    this.notifyApiClient = new ApiClient({ authHeader: `Token ${config.notifyToken}` });
+    this.notifyApiClient = new ApiClient({ authHeader: `Bearer ${createJwt(config.notifyToken, config.notifyIssuer)}` });
   }
 
   async notify() {
-    // Get filter from filter
-    const objectsFilter = filter(this.config.objectFilter);
-    // Get objects to notify
-    const objectResults = await this.getObjects({
-      filter: objectsFilter,
-      baseUrl: this.config.objectsBaseUrl,
-    });
+    const objectResults = await this.getObjectsWithFilter(this.config.objectFilter);
 
     for (let objectResult of objectResults) {
       // map object to notify input
-      const fullMapping = objectTransform(this.config.objectMapping, objectResult);
-      let { phone_number, ...emailMapping } = fullMapping;
-      let { email_address, ...phoneMapping } = fullMapping;
-      console.log(objectResult.uuid, phoneMapping, emailMapping);
-      // TODO: Call notify
-      const requestConfigMail = this.objectsApiClient.configureRequest({
-        method: 'POST',
-        body: JSON.stringify(emailMapping),
-      });
-      const requestConfigPhone = this.objectsApiClient.configureRequest({
-        method: 'POST',
-        body: JSON.stringify(phoneMapping),
-      });
-      const result = await Promise.all([
-        this.notifyApiClient.request(requestConfigMail, `${this.config.notifyBaseUrl}email`),
-        this.notifyApiClient.request(requestConfigPhone, `${this.config.notifyBaseUrl}sms`)
-      ]);
-      console.log(result);
-      
-      // TODO: Update object
+      await this.sendNotifications(objectResult);
+      // TODO: Update object if successful, log if failed
     }
   }
 
-  private async getObjects(config: {
+  private async sendNotifications(objectResult: any) {
+    let promises: Promise<any>[] = [];
+    for (let mapping of this.config.objectMappings) {
+      const mappedObject = objectTransform(mapping, objectResult);
+      promises.push(this.notifyRequestPromise(mappedObject));
+    }
+    const result = await Promise.all(promises);
+    return result;
+  }
+
+  private notifyRequestPromise(mappedObject: MappingConfiguration) {
+    const requestConfig = this.notifyApiClient.configureRequest({
+      method: 'POST',
+      body: mappedObject,
+    });
+    if (mappedObject.email_address) {
+      return this.notifyApiClient.request(requestConfig, `${this.config.notifyBaseUrl}email`);
+    } else if (mappedObject.phone_number) {
+      return this.notifyApiClient.request(requestConfig, `${this.config.notifyBaseUrl}sms`);
+    }
+    else { throw Error('mapped object must have phone_number or email_address'); }
+  }
+
+  private async getObjectsWithFilter(objectFilter: FilterConfiguration) {
+    // Get filter from filter
+    const objectsFilter = filter(objectFilter);
+    // Get objects to notify
+    const objectResults = await this.fetchObjects({
+      filter: objectsFilter,
+      baseUrl: this.config.objectsBaseUrl,
+    });
+    return objectResults;
+  }
+
+  private async fetchObjects(config: {
     filter: string;
     baseUrl: string;
   }) {
@@ -63,4 +75,11 @@ export class Notifier {
     const objectResults = await this.objectsApiClient.request(requestConfig, `${config.baseUrl}${config.filter}`);
     return objectResults;
   }
+}
+
+function createJwt(secret: string, iss: string) {
+  return jwt.sign({
+    iss,
+    iat: Math.floor(Date.now() / 1000),
+  }, secret);
 }

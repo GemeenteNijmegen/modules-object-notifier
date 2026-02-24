@@ -5,6 +5,7 @@ describe('object should', () => {
 
   test('transform object', async() => {
     const output = objectTransform({
+      template_id: 'test',
       email_address: 'record.data.formtaak.data.email',
       phone_number: 'record.data.formtaak.data.telefoon',
       personalisation: {
@@ -29,6 +30,7 @@ describe('object should', () => {
       },
     }, testObject);
     expect(output).toEqual({
+      template_id: 'test',
       email_address: 'test.test@nijmegen.nl',
       phone_number: '12345',
       personalisation: {

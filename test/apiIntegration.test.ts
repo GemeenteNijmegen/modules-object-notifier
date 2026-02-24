@@ -1,5 +1,5 @@
 import { describeIntegration } from './describeIntegration';
-import { ApiClient } from '../src/api';
+import { ApiClient } from '../src/ApiClient';
 import { filter } from '../src/filter';
 
 describeIntegration('API integration test', () => {

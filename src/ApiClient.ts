@@ -1,3 +1,4 @@
+import * as jwt from 'jsonwebtoken';
 interface RequestConfiguration {
   method: 'GET' | 'POST';
   headers?: {
@@ -16,12 +17,15 @@ interface PaginatedResponse<T = any> {
 export class ApiClient {
   constructor(private config: {
     authHeader: string;
+    baseUrl?: string;
     fetchFn?: any;
   }) {
   }
 
   async request(config: RequestConfiguration, url: string): Promise<any> {
-    const firstResponse = await this.makeRequest(config, url);
+    let finalUrl = this.buildUrl(url);
+
+    const firstResponse = await this.makeRequest(config, finalUrl);
 
     const isPaginated = this.isPaginatedResponse(firstResponse);
     const shouldFetchAll = isPaginated && config.method === 'GET';
@@ -42,6 +46,35 @@ export class ApiClient {
 
     // Return combined response with all results
     return allResults;
+  }
+
+  /**
+   * Creates a full URL from provided URL and optional baseURL
+   * if provided url is a complete URL string, returns that,
+   * if not, and baseURL is set, returns combined URL as string.
+   * If neither succeed, throws.
+   *
+   * @param url provided url, can be partial
+   */
+  private buildUrl(url: string) {
+    let finalUrl = url;
+    if (this.config.baseUrl
+      && !URL.canParse(url) // only use baseURL if provided URL is not a full url
+      && URL.canParse(url, this.config.baseUrl)) {
+      const fullUrl = URL.parse(url, this.config.baseUrl);
+      if (fullUrl) {
+        finalUrl = fullUrl.toString();
+        return finalUrl;
+      } else {
+        throw Error(`invalid URL provided, provided URL is ${url}, base URL ${this.config.baseUrl}`);
+      }
+    } else {
+      if (URL.canParse(url)) {
+        return url;
+      } else {
+        throw Error(`invalid URL provided: ${url}`);
+      }
+    }
   }
 
   public configureRequest(config: RequestConfiguration): RequestConfiguration {
@@ -85,4 +118,25 @@ export class ApiClient {
       ('next' in response || 'previous' in response)
     );
   }
+}
+
+export function notifiyApiClientWithConfig(config: {
+  issuer: string;
+  secret: string;
+  baseUrl?: string;
+  fetchFn?: any;
+}) {
+  const baseUrl = config.baseUrl ?? 'https://api.notifynl.nl/v2/notifications/';
+  return new ApiClient({
+    baseUrl,
+    authHeader: `Bearer ${createJwt(config.secret, config.issuer)}`,
+    fetchFn: config.fetchFn,
+  });
+}
+
+function createJwt(secret: string, iss: string) {
+  return jwt.sign({
+    iss,
+    iat: Math.floor(Date.now() / 1000),
+  }, secret);
 }

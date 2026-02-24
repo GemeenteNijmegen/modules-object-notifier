@@ -1,5 +1,4 @@
-import * as jwt from 'jsonwebtoken';
-import { ApiClient } from './api';
+import { ApiClient, notifiyApiClientWithConfig } from './ApiClient';
 import { filter, FilterConfiguration } from './filter';
 import { MappingConfiguration, objectTransform } from './objectTransform';
 
@@ -18,7 +17,7 @@ export class Notifier {
   private objectsApiClient: ApiClient;
   constructor(private config: Configuration) {
     this.objectsApiClient = new ApiClient({ authHeader: `Token ${config.objectsToken}` });
-    this.notifyApiClient = new ApiClient({ authHeader: `Bearer ${createJwt(config.notifyToken, config.notifyIssuer)}` });
+    this.notifyApiClient = notifiyApiClientWithConfig({ issuer: config.notifyIssuer, secret: config.notifyToken });
   }
 
   async notify() {
@@ -47,9 +46,9 @@ export class Notifier {
       body: mappedObject,
     });
     if (mappedObject.email_address) {
-      return this.notifyApiClient.request(requestConfig, `${this.config.notifyBaseUrl}email`);
+      return this.notifyApiClient.request(requestConfig, 'email');
     } else if (mappedObject.phone_number) {
-      return this.notifyApiClient.request(requestConfig, `${this.config.notifyBaseUrl}sms`);
+      return this.notifyApiClient.request(requestConfig, 'sms');
     } else { throw Error('mapped object must have phone_number or email_address'); }
   }
 
@@ -74,11 +73,4 @@ export class Notifier {
     const objectResults = await this.objectsApiClient.request(requestConfig, `${config.baseUrl}${config.filter}`);
     return objectResults;
   }
-}
-
-function createJwt(secret: string, iss: string) {
-  return jwt.sign({
-    iss,
-    iat: Math.floor(Date.now() / 1000),
-  }, secret);
 }

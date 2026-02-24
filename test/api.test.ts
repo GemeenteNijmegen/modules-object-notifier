@@ -172,8 +172,8 @@ describe('partial URLs', () => {
       },
       method: 'GET',
     });
-    expect(async() => { await apiClient.request(config, 'test'); }).rejects.toThrow();
-    expect(async() => { await apiClient.request(config, 'http://localhost'); }).resolves.not.toThrow();
-    expect(async() => { await apiClientWithBase.request(config, 'test'); }).rejects.toThrow();
+    await expect(async() => { await apiClient.request(config, 'test'); }).rejects.toThrow();
+    await expect(async() => { await apiClient.request(config, 'http://localhost'); }).resolves.not.toThrow();
+    await expect(async() => { await apiClientWithBase.request(config, 'test'); }).rejects.toThrow();
   });
 });

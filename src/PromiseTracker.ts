@@ -88,7 +88,7 @@ export class PromiseTracker<M extends PromiseMetadata = PromiseMetadata> {
     });
 
     // Clear promises after execution
-    this.promises = [];
+    this.clear();
 
     return trackedResults;
   }

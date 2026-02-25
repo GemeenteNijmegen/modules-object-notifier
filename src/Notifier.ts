@@ -57,13 +57,13 @@ export class Notifier {
     console.log(analyzer.summary());
     const groupedById = analyzer.groupBy('id');
     for (let objectId of groupedById.keys()) {
-      const result = groupedById.get(objectId)!;
-      const success = result.filter(val => val.success);
+      const resultForId = groupedById.get(objectId)!;
+      const success = resultForId.filter(val => val.success);
       console.log(`Notifications for ${objectId} sent.`);
       if (success.length >= 1) {
         // At least one notification succeeded for this object, mark as notified
         await this.updateObjectStatus(objectId);
-        if (success.length < result.length) {
+        if (success.length < resultForId.length) {
           console.warn(`Some notifications for ${objectId} failed. Marked as notified because at least one succeeded.`);
         } else {
           console.log(`All notifications for ${objectId} succeeded. Marked as notified.`);

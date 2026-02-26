@@ -1,8 +1,16 @@
 import { ApiClient, notifiyApiClientWithConfig, objectsApiClientWithConfig } from './ApiClient';
 import { filter, FilterConfiguration } from './filter';
 import { MappingConfiguration, objectTransform } from './objectTransform';
-import { PromiseMetadata, PromiseTracker, TrackedResultsAnalyzer } from './PromiseTracker';
+import { PromiseMetadata, PromiseTracker, TrackedResult, TrackedResultsAnalyzer } from './PromiseTracker';
 import testObject from '../test/test-object.json';
+
+export interface ObjectPatchConfiguration<T = any> {
+  record: {
+    typeVersion: number;
+    data: T;
+    startAt: string;
+  };
+}
 
 interface Configuration {
   objectsToken: string;
@@ -12,33 +20,20 @@ interface Configuration {
   notifyBaseUrl: string;
   objectFilter: FilterConfiguration;
   objectMappings: MappingConfiguration[];
+  objectPatchConfiguration: ObjectPatchConfiguration;
+  fetchFn?: any;
 }
 
 interface NotificationMetadata extends PromiseMetadata {
   objectId: string;
 }
 
-const fetchFn = (process.env.DEBUG!) ? async (url: string, _config: any) => {
-  return new Promise((res, _rej) => {
-    console.debug('would call ', url);
-    res({
-      ok: true,
-      status: 200,
-      json: () => {
-        return {
-          results: [testObject],
-        };
-      },
-    });
-  });
-} : fetch;
-
 export class Notifier {
   private notifyApiClient: ApiClient;
   private objectsApiClient: ApiClient;
   constructor(private config: Configuration) {
-    this.objectsApiClient = objectsApiClientWithConfig({ token: config.objectsToken, fetchFn });
-    this.notifyApiClient = notifiyApiClientWithConfig({ issuer: config.notifyIssuer, secret: config.notifyToken, fetchFn });
+    this.objectsApiClient = objectsApiClientWithConfig({ token: config.objectsToken, fetchFn: config.fetchFn });
+    this.notifyApiClient = notifiyApiClientWithConfig({ issuer: config.notifyIssuer, secret: config.notifyToken, fetchFn: config.fetchFn });
   }
 
   async notify() {
@@ -48,18 +43,24 @@ export class Notifier {
       console.log('No objects found, returning');
       return;
     }
+    console.debug(objectResults);
     for (let objectResult of objectResults) {
       // map object to notify input
       this.addNotificationRequests(objectResult, promises);
     }
     const result = await promises.execute();
+
+    // Process objects based on notifiication results
     const analyzer = new TrackedResultsAnalyzer(result);
     console.log(analyzer.summary());
     const groupedById = analyzer.groupBy('id');
+    await this.updateSuccesfullyNotifiedObjects(groupedById);
+  }
+
+  private async updateSuccesfullyNotifiedObjects(groupedById: Map<any, TrackedResult<NotificationMetadata>[]>) {
     for (let objectId of groupedById.keys()) {
       const resultForId = groupedById.get(objectId)!;
       const success = resultForId.filter(val => val.success);
-      console.log(`Notifications for ${objectId} sent.`);
       if (success.length >= 1) {
         // At least one notification succeeded for this object, mark as notified
         await this.updateObjectStatus(objectId);
@@ -70,7 +71,7 @@ export class Notifier {
         }
       }
       if (success.length == 0) {
-        console.warn(`All notifications for ${objectId} failed. Not marked as notified.`);
+        console.error(`All notifications for ${objectId} failed. Not marked as notified.`);
       }
     }
   }
@@ -78,19 +79,7 @@ export class Notifier {
   async updateObjectStatus(objectId: string) {
     const requestConfig = this.objectsApiClient.configureRequest({
       method: 'PATCH',
-      body: {
-        record: {
-          typeVersion: 7,
-          data: {
-            formtaak: {
-              data: {
-                reminder_verzonden: 'ja',
-              },
-            },
-          },
-          startAt: '2026-02-24',
-        },
-      },
+      body: this.config.objectPatchConfiguration
     });
     await this.objectsApiClient.request(requestConfig, `${this.config.objectsBaseUrl}/${objectId}`);
   }
@@ -133,6 +122,8 @@ export class Notifier {
       method: 'GET',
     });
     const objectResults = await this.objectsApiClient.request(requestConfig, `${config.baseUrl}${config.filter}`);
-    return objectResults;
+    if(objectResults.results) {
+      return objectResults.results;
+    }
   }
 }

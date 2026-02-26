@@ -2,6 +2,9 @@ import { FilterConfiguration } from './src/filter';
 import { MappingConfiguration } from './src/objectTransform';
 import Notifier from './src/index';
 import 'dotenv/config';
+import { ObjectPatchConfiguration } from './src/Notifier';
+import testObject from './test/test-object.json';
+
 
 const objectFilter: FilterConfiguration = {
   objectType: process.env.OBJECT_TYPE!,
@@ -75,15 +78,47 @@ const phoneObjectMapping: MappingConfiguration = {
   },
 };
 
+const objectPatchConfiguration: ObjectPatchConfiguration = {
+  record: {
+    typeVersion: 7,
+    data: {
+      formtaak: {
+        data: {
+          reminder_verzonden: 'ja',
+        },
+      },
+    },
+    startAt: new Date().toISOString().substring(0, 'YYYY-MM-DD'.length),
+  }
+};
+
+
+const fetchFn = (process.env.DEBUG!) ? async (url: string, _config: any) => {
+  return new Promise((res, _rej) => {
+    console.debug('would call ', url);
+    res({
+      ok: true,
+      status: 200,
+      json: () => {
+        return {
+          results: [testObject],
+        };
+      },
+    });
+  });
+} : fetch;
+
 (async () => {
   console.debug('running script');
   await new Notifier({
-  objectFilter,
-  objectMappings: [emailObjectMapping, phoneObjectMapping],
-  objectsToken: process.env.OBJECTS_TOKEN!,
-  objectsBaseUrl: process.env.OBJECTS_BASEURL!,
-  notifyBaseUrl: process.env.NOTIFY_BASEURL!,
-  notifyToken: process.env.NOTIFY_TOKEN!,
-  notifyIssuer: process.env.NOTIFY_ISS!,
+    objectFilter,
+    objectMappings: [emailObjectMapping, phoneObjectMapping],
+    objectPatchConfiguration,
+    objectsToken: process.env.OBJECTS_TOKEN!,
+    objectsBaseUrl: process.env.OBJECTS_BASEURL!,
+    notifyBaseUrl: process.env.NOTIFY_BASEURL!,
+    notifyToken: process.env.NOTIFY_TOKEN!,
+    notifyIssuer: process.env.NOTIFY_ISS!,
+    fetchFn,
   }).notify();
 })();

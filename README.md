@@ -26,7 +26,7 @@ Example configuration (json):
 }]
 ```
 
-### Special values: 
+### Special values
 For the value key, you can use {{today}} as a value to use today's date. 
 
 Example usage:

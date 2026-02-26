@@ -1,4 +1,4 @@
-import { ApiClient, notifiyApiClientWithConfig } from './ApiClient';
+import { ApiClient, notifiyApiClientWithConfig, objectsApiClientWithConfig } from './ApiClient';
 import { filter, FilterConfiguration } from './filter';
 import { MappingConfiguration, objectTransform } from './objectTransform';
 import { PromiseMetadata, PromiseTracker, TrackedResultsAnalyzer } from './PromiseTracker';
@@ -37,7 +37,7 @@ export class Notifier {
   private notifyApiClient: ApiClient;
   private objectsApiClient: ApiClient;
   constructor(private config: Configuration) {
-    this.objectsApiClient = new ApiClient({ authHeader: `Token ${config.objectsToken}`, fetchFn });
+    this.objectsApiClient = objectsApiClientWithConfig({ token: config.objectsToken, fetchFn });
     this.notifyApiClient = notifiyApiClientWithConfig({ issuer: config.notifyIssuer, secret: config.notifyToken, fetchFn });
   }
 
@@ -78,9 +78,6 @@ export class Notifier {
   async updateObjectStatus(objectId: string) {
     const requestConfig = this.objectsApiClient.configureRequest({
       method: 'PATCH',
-      headers: {
-        'Content-Crs': 'EPSG:4326',
-      },
       body: {
         record: {
           typeVersion: 7,

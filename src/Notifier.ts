@@ -78,7 +78,7 @@ export class Notifier {
   async updateObjectStatus(objectId: string) {
     const requestConfig = this.objectsApiClient.configureRequest({
       method: 'PATCH',
-      body: this.config.objectPatchConfiguration
+      body: this.config.objectPatchConfiguration,
     });
     await this.objectsApiClient.request(requestConfig, `${this.config.objectsBaseUrl}/${objectId}`);
   }
@@ -121,7 +121,7 @@ export class Notifier {
       method: 'GET',
     });
     const objectResults = await this.objectsApiClient.request(requestConfig, `${config.baseUrl}${config.filter}`);
-    if(objectResults.results) {
+    if (objectResults.results) {
       return objectResults.results;
     }
   }

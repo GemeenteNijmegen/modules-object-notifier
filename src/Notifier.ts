@@ -2,7 +2,6 @@ import { ApiClient, notifiyApiClientWithConfig, objectsApiClientWithConfig } fro
 import { filter, FilterConfiguration } from './filter';
 import { MappingConfiguration, objectTransform } from './objectTransform';
 import { PromiseMetadata, PromiseTracker, TrackedResult, TrackedResultsAnalyzer } from './PromiseTracker';
-import testObject from '../test/test-object.json';
 
 export interface ObjectPatchConfiguration<T = any> {
   record: {

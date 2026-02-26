@@ -54,11 +54,11 @@ export class Notifier {
     console.log(analyzer.summary());
     const groupedById = analyzer.groupBy('id');
     await this.updateSuccesfullyNotifiedObjects(groupedById);
-    return analyzer
+    return analyzer;
   }
 
-  private async updateSuccesfullyNotifiedObjects(groupedById: Map<any, TrackedResult<NotificationMetadata>[]>) {    
-      const promiseTracker = new PromiseTracker<NotificationMetadata>();
+  private async updateSuccesfullyNotifiedObjects(groupedById: Map<any, TrackedResult<NotificationMetadata>[]>) {
+    const promiseTracker = new PromiseTracker<NotificationMetadata>();
     for (let objectId of groupedById.keys()) {
       const resultForId = groupedById.get(objectId)!;
       const success = resultForId.filter(val => val.success);
@@ -77,9 +77,9 @@ export class Notifier {
     }
     const results = await promiseTracker.execute();
     const analyzer = new TrackedResultsAnalyzer(results);
-    if(analyzer.failureCount > 0) {
+    if (analyzer.failureCount > 0) {
       console.error('Failed updating some objects');
-      for(let failed of analyzer.failures) {
+      for (let failed of analyzer.failures) {
         console.error('Failed updating object ', failed.metadata.get('objectId'));
       }
     }

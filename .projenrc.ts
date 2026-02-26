@@ -7,7 +7,7 @@ const project = new GemeenteNijmegenTsPackage({
     '@types/jsonwebtoken',
   ],
   deps: ['jsonwebtoken'],
-  name: 'object-notifier',
+  name: '@gemeentenijmegen/object-notifier',
   projenrcTs: true,
   repository: 'gemeentenijmegen/object-notifier',
   tsconfig: {

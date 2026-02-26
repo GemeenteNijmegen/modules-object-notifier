@@ -37,7 +37,7 @@ export class Notifier {
 
   async notify() {
     const objectResults = await this.getObjectsWithFilter(this.config.objectFilter);
-    const promises = new PromiseTracker<NotificationMetadata>();
+    const promiseTracker = new PromiseTracker<NotificationMetadata>();
     if (!objectResults) {
       console.log('No objects found, returning');
       return;
@@ -45,37 +45,47 @@ export class Notifier {
     console.debug(objectResults);
     for (let objectResult of objectResults) {
       // map object to notify input
-      this.addNotificationRequests(objectResult, promises);
+      this.addNotificationRequests(objectResult, promiseTracker);
     }
-    const result = await promises.execute();
+    const result = await promiseTracker.execute();
 
     // Process objects based on notifiication results
     const analyzer = new TrackedResultsAnalyzer(result);
     console.log(analyzer.summary());
     const groupedById = analyzer.groupBy('id');
     await this.updateSuccesfullyNotifiedObjects(groupedById);
+    return analyzer
   }
 
-  private async updateSuccesfullyNotifiedObjects(groupedById: Map<any, TrackedResult<NotificationMetadata>[]>) {
+  private async updateSuccesfullyNotifiedObjects(groupedById: Map<any, TrackedResult<NotificationMetadata>[]>) {    
+      const promiseTracker = new PromiseTracker<NotificationMetadata>();
     for (let objectId of groupedById.keys()) {
       const resultForId = groupedById.get(objectId)!;
       const success = resultForId.filter(val => val.success);
       if (success.length >= 1) {
         // At least one notification succeeded for this object, mark as notified
-        await this.updateObjectStatus(objectId);
+        promiseTracker.add(this.updateObjectStatusRequest(objectId), { objectId });
         if (success.length < resultForId.length) {
-          console.warn(`Some notifications for ${objectId} failed. Marked as notified because at least one succeeded.`);
+          console.warn(`Some notifications for ${objectId} failed. Marking as notified because at least one succeeded.`);
         } else {
-          console.log(`All notifications for ${objectId} succeeded. Marked as notified.`);
+          console.log(`All notifications for ${objectId} succeeded. Marking as notified.`);
         }
       }
       if (success.length == 0) {
-        console.error(`All notifications for ${objectId} failed. Not marked as notified.`);
+        console.error(`All notifications for ${objectId} failed. Not marking as notified.`);
+      }
+    }
+    const results = await promiseTracker.execute();
+    const analyzer = new TrackedResultsAnalyzer(results);
+    if(analyzer.failureCount > 0) {
+      console.error('Failed updating some objects');
+      for(let failed of analyzer.failures) {
+        console.error('Failed updating object ', failed.metadata.get('objectId'));
       }
     }
   }
 
-  async updateObjectStatus(objectId: string) {
+  async updateObjectStatusRequest(objectId: string) {
     const requestConfig = this.objectsApiClient.configureRequest({
       method: 'PATCH',
       body: this.config.objectPatchConfiguration

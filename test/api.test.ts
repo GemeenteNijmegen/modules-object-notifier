@@ -2,7 +2,7 @@ import { ApiClient } from '../src/ApiClient';
 
 describe('API should', () => {
 
-  test('creating a class', async () => {
+  test('create succesfully', async () => {
     const apiClient = new ApiClient({ authHeader: 'testkey' });
     const apiClient2 = new ApiClient({ authHeader: 'mijnjwt' });
     expect(apiClient).toBeTruthy();
@@ -32,6 +32,47 @@ describe('API should', () => {
       },
       method: 'POST',
     });
+  });
+
+  test('use default headers in request', async () => {
+    const apiClient = new ApiClient({
+      authHeader: 'testkey',
+      defaultHeaders: {
+        myHeader: 'myvalue',
+        someHeader: 'anothervalue',
+      },
+    });
+    expect(apiClient.configureRequest({ method: 'GET' }).headers).toEqual(
+      {
+        'Authorization': 'testkey',
+        'Content-Type': 'application/json',
+        'myHeader': 'myvalue',
+        'someHeader': 'anothervalue',
+      },
+    );
+  });
+
+  test('override default headers in request', async () => {
+    const apiClient = new ApiClient({
+      authHeader: 'testkey',
+      defaultHeaders: {
+        myHeader: 'myvalue',
+        someHeader: 'anothervalue',
+      },
+    });
+    expect(apiClient.configureRequest({
+      method: 'GET',
+      headers: {
+        someHeader: 'differentvalue',
+      },
+    }).headers).toEqual(
+      {
+        'Authorization': 'testkey',
+        'Content-Type': 'application/json',
+        'myHeader': 'myvalue',
+        'someHeader': 'differentvalue',
+      },
+    );
   });
 });
 

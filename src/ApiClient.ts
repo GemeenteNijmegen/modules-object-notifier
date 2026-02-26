@@ -17,6 +17,9 @@ interface PaginatedResponse<T = any> {
 export class ApiClient {
   constructor(private config: {
     authHeader: string;
+    defaultHeaders?: {
+      [key: string]: string;
+    };
     baseUrl?: string;
     fetchFn?: any;
   }) {
@@ -88,6 +91,7 @@ export class ApiClient {
       headers: {
         'Authorization': this.config.authHeader,
         'Content-Type': 'application/json',
+        ...this.config.defaultHeaders,
         ...config?.headers,
       },
     } as RequestConfiguration;
@@ -136,6 +140,21 @@ export function notifiyApiClientWithConfig(config: {
     baseUrl,
     authHeader: `Bearer ${createJwt(config.secret, config.issuer)}`,
     fetchFn: config.fetchFn,
+  });
+}
+
+export function objectsApiClientWithConfig(config: {
+  token: string;
+  baseUrl?: string;
+  fetchFn?: any;
+}) {
+  return new ApiClient({
+    baseUrl: config.baseUrl,
+    authHeader: `Token ${config.token}`,
+    fetchFn: config.fetchFn,
+    defaultHeaders: {
+      'Content-Crs': 'EPSG:4326',
+    },
   });
 }
 

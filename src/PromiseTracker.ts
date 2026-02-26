@@ -8,7 +8,7 @@ export interface PromiseMetadata<T = any> {
 /**
  * Result of a tracked promise execution
  */
-export interface TrackedResult<M extends PromiseMetadata = PromiseMetadata> {
+export interface TrackedResult<M extends PromiseMetadata> {
   metadata: M;
   status: 'fulfilled' | 'rejected';
   value?: any;

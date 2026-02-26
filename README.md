@@ -50,7 +50,7 @@ many errors may resolve automatically. Some type of retry mechanism is probably 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Orchestrator
+    participant Notifier
     participant FilterConstructor as Filter Constructor
     participant ObjectsConnector as Objects-API Connector
     participant ObjectsAPI as External API 'objects'
@@ -59,26 +59,26 @@ sequenceDiagram
     participant NotifyNLConnector as NotifyNL Connector
     participant NotifyNL as External API 'notifyNL'
 
-    Orchestrator->>FilterConstructor: request filter
-    FilterConstructor-->>Orchestrator: URL filter
+    Notifier->>FilterConstructor: request filter
+    FilterConstructor-->>Notifier: URL filter
     
-    Orchestrator->>ObjectsConnector: fetch objects
+    Notifier->>ObjectsConnector: fetch objects
     ObjectsConnector->>ObjectsAPI: query with filter
     ObjectsAPI-->>ObjectsConnector: objects data
-    ObjectsConnector-->>Orchestrator: raw objects
+    ObjectsConnector-->>Notifier: raw objects
     
-    Orchestrator->>DataTransformer: transform data
-    DataTransformer-->>Orchestrator: transformed data
+    Notifier->>DataTransformer: transform data
+    DataTransformer-->>Notifier: transformed data
     
-    Orchestrator->>Notifier: send notification
+    Notifier->>Notifier: send notification
     Notifier->>NotifyNLConnector: notification payload
     NotifyNLConnector->>NotifyNL: send notification
     NotifyNL-->>NotifyNLConnector: success response
     NotifyNLConnector-->>Notifier: success
-    Notifier-->>Orchestrator: success
+    Notifier-->>Notifier: success
     
-    Orchestrator->>ObjectsConnector: update notified_at
+    Notifier->>ObjectsConnector: update notified_at
     ObjectsConnector->>ObjectsAPI: update notified_at
     ObjectsAPI-->>ObjectsConnector: update confirmed
-    ObjectsConnector-->>Orchestrator: update confirmed
+    ObjectsConnector-->>Notifier: update confirmed
 ```

@@ -1,8 +1,15 @@
 import { ApiClient, notifiyApiClientWithConfig, objectsApiClientWithConfig } from './ApiClient';
 import { filter, FilterConfiguration } from './filter';
 import { MappingConfiguration, objectTransform } from './objectTransform';
-import { PromiseMetadata, PromiseTracker, TrackedResultsAnalyzer } from './PromiseTracker';
-import testObject from '../test/test-object.json';
+import { PromiseMetadata, PromiseTracker, TrackedResult, TrackedResultsAnalyzer } from './PromiseTracker';
+
+export interface ObjectPatchConfiguration<T = any> {
+  record: {
+    typeVersion: number;
+    data: T;
+    startAt: string;
+  };
+}
 
 interface Configuration {
   objectsToken: string;
@@ -12,85 +19,76 @@ interface Configuration {
   notifyBaseUrl: string;
   objectFilter: FilterConfiguration;
   objectMappings: MappingConfiguration[];
+  objectPatchConfiguration: ObjectPatchConfiguration;
+  fetchFn?: any;
 }
 
 interface NotificationMetadata extends PromiseMetadata {
   objectId: string;
 }
 
-const fetchFn = (process.env.DEBUG!) ? async (url: string, _config: any) => {
-  return new Promise((res, _rej) => {
-    console.debug('would call ', url);
-    res({
-      ok: true,
-      status: 200,
-      json: () => {
-        return {
-          results: [testObject],
-        };
-      },
-    });
-  });
-} : fetch;
-
 export class Notifier {
   private notifyApiClient: ApiClient;
   private objectsApiClient: ApiClient;
   constructor(private config: Configuration) {
-    this.objectsApiClient = objectsApiClientWithConfig({ token: config.objectsToken, fetchFn });
-    this.notifyApiClient = notifiyApiClientWithConfig({ issuer: config.notifyIssuer, secret: config.notifyToken, fetchFn });
+    this.objectsApiClient = objectsApiClientWithConfig({ token: config.objectsToken, fetchFn: config.fetchFn });
+    this.notifyApiClient = notifiyApiClientWithConfig({ issuer: config.notifyIssuer, secret: config.notifyToken, fetchFn: config.fetchFn });
   }
 
   async notify() {
     const objectResults = await this.getObjectsWithFilter(this.config.objectFilter);
-    const promises = new PromiseTracker<NotificationMetadata>();
+    const promiseTracker = new PromiseTracker<NotificationMetadata>();
     if (!objectResults) {
       console.log('No objects found, returning');
       return;
     }
+    console.debug(objectResults);
     for (let objectResult of objectResults) {
       // map object to notify input
-      this.addNotificationRequests(objectResult, promises);
+      this.addNotificationRequests(objectResult, promiseTracker);
     }
-    const result = await promises.execute();
+    const result = await promiseTracker.execute();
+
+    // Process objects based on notifiication results
     const analyzer = new TrackedResultsAnalyzer(result);
     console.log(analyzer.summary());
     const groupedById = analyzer.groupBy('id');
+    await this.updateSuccesfullyNotifiedObjects(groupedById);
+    return analyzer;
+  }
+
+  private async updateSuccesfullyNotifiedObjects(groupedById: Map<any, TrackedResult<NotificationMetadata>[]>) {
+    const promiseTracker = new PromiseTracker<NotificationMetadata>();
     for (let objectId of groupedById.keys()) {
       const resultForId = groupedById.get(objectId)!;
       const success = resultForId.filter(val => val.success);
-      console.log(`Notifications for ${objectId} sent.`);
       if (success.length >= 1) {
         // At least one notification succeeded for this object, mark as notified
-        await this.updateObjectStatus(objectId);
+        promiseTracker.add(this.updateObjectStatusRequest(objectId), { objectId });
         if (success.length < resultForId.length) {
-          console.warn(`Some notifications for ${objectId} failed. Marked as notified because at least one succeeded.`);
+          console.warn(`Some notifications for ${objectId} failed. Marking as notified because at least one succeeded.`);
         } else {
-          console.log(`All notifications for ${objectId} succeeded. Marked as notified.`);
+          console.log(`All notifications for ${objectId} succeeded. Marking as notified.`);
         }
       }
       if (success.length == 0) {
-        console.warn(`All notifications for ${objectId} failed. Not marked as notified.`);
+        console.error(`All notifications for ${objectId} failed. Not marking as notified.`);
+      }
+    }
+    const results = await promiseTracker.execute();
+    const analyzer = new TrackedResultsAnalyzer(results);
+    if (analyzer.failureCount > 0) {
+      console.error('Failed updating some objects');
+      for (let failed of analyzer.failures) {
+        console.error('Failed updating object ', failed.metadata.get('objectId'));
       }
     }
   }
 
-  async updateObjectStatus(objectId: string) {
+  async updateObjectStatusRequest(objectId: string) {
     const requestConfig = this.objectsApiClient.configureRequest({
       method: 'PATCH',
-      body: {
-        record: {
-          typeVersion: 7,
-          data: {
-            formtaak: {
-              data: {
-                reminder_verzonden: 'ja',
-              },
-            },
-          },
-          startAt: '2026-02-24',
-        },
-      },
+      body: this.config.objectPatchConfiguration,
     });
     await this.objectsApiClient.request(requestConfig, `${this.config.objectsBaseUrl}/${objectId}`);
   }
@@ -133,6 +131,8 @@ export class Notifier {
       method: 'GET',
     });
     const objectResults = await this.objectsApiClient.request(requestConfig, `${config.baseUrl}${config.filter}`);
-    return objectResults;
+    if (objectResults.results) {
+      return objectResults.results;
+    }
   }
 }

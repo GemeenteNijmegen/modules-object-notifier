@@ -2,7 +2,7 @@
   "name": "@gemeentenijmegen/object-notifier",
   "repository": {
     "type": "git",
-    "url": "gemeentenijmegen/object-notifier"
+    "url": "gemeentenijmegen/modules-object-notifier"
   },
   "scripts": {
     "build": "npx projen build",

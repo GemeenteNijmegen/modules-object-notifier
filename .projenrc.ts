@@ -9,7 +9,7 @@ const project = new GemeenteNijmegenTsPackage({
   deps: ['jsonwebtoken'],
   name: '@gemeentenijmegen/object-notifier',
   projenrcTs: true,
-  repository: 'gemeenteNijmegen/modules-object-notifier',
+  repository: 'GemeenteNijmegen/modules-object-notifier',
   tsconfig: {
     compilerOptions: {
       isolatedModules: true,

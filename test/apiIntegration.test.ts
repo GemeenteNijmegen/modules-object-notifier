@@ -13,7 +13,7 @@ describeIntegration('API integration test', () => {
       },
     });
 
-    const result = await apiClient.request(request, 'https://mijn-services.accp.nijmegen.nl/objects/api/v2/objects/f4437704-f2e3-4968-8b40-4aa01784f49b');
+    await apiClient.request(request, 'https://mijn-services.accp.nijmegen.nl/objects/api/v2/objects/f4437704-f2e3-4968-8b40-4aa01784f49b');
     // expect(result).toHaveProperty('url');
   });
 

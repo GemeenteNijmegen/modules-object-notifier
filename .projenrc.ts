@@ -1,6 +1,11 @@
 import { GemeenteNijmegenTsPackage } from '@gemeentenijmegen/projen-project-type';
 const project = new GemeenteNijmegenTsPackage({
   defaultReleaseBranch: 'main',
+  depsUpgradeOptions: {
+    workflowOptions: {
+      branches: ['main'],
+    },
+  },
   devDeps: [
     '@gemeentenijmegen/projen-project-type',
     'dotenv',

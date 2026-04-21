@@ -77,8 +77,8 @@ describe('API should', () => {
 });
 
 describe('API fetches results', () => {
-  const fetchFn = async (url: string, config: any) => {
-    return new Promise((res, rej) => {
+  const fetchFn = async () => {
+    return new Promise((res) => {
       res({
         ok: true,
         status: 200,
@@ -104,8 +104,8 @@ describe('API fetches results', () => {
 
 
 describe('API pagination', () => {
-  const fetchFn = async (url: string, config: any) => {
-    return new Promise((res, rej) => {
+  const fetchFn = async (url: string) => {
+    return new Promise((res) => {
       res({
         ok: true,
         status: 200,
@@ -138,8 +138,8 @@ describe('API pagination', () => {
 
 
 describe('partial URLs', () => {
-  const fetchFn = jest.fn(async (url: string, config: any) => {
-    return new Promise((res, rej) => {
+  const fetchFn = jest.fn(async () => {
+    return new Promise((res) => {
       res({
         ok: true,
         status: 200,

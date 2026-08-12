@@ -100,7 +100,7 @@ export class Notifier {
     }
   }
 
-  private notifyRequestPromise(mappedObject: MappingConfiguration) {
+  private notifyRequestPromise(mappedObject: MappingConfiguration): Promise<any> {
     const requestConfig = this.notifyApiClient.configureRequest({
       method: 'POST',
       body: mappedObject,
@@ -109,7 +109,8 @@ export class Notifier {
       return this.notifyApiClient.request(requestConfig, 'email');
     } else if (mappedObject.phone_number) {
       return this.notifyApiClient.request(requestConfig, 'sms');
-    } else { throw Error('mapped object must have phone_number or email_address'); }
+    }
+    return Promise.reject(new Error('mapped object must have phone_number or email_address'));
   }
 
   private async getObjectsWithFilter(objectFilter: FilterConfiguration) {
